@@ -1,3 +1,4 @@
+#-*- utf-8 -*-
 import socket
 import threading
 import queue
@@ -10,6 +11,9 @@ test = ''' {
  #Queue
 msg_queue = queue.Queue()
 queueLock = threading.Lock()
+
+#Client Stack
+clients = []
 
 class ServerClass:
     def __init__(self):
@@ -25,28 +29,36 @@ class ServerClass:
     def c_handler(self, client, c_addr, c_port):
         while True:
             try:
-                msg = client.recv(self.max_size)
-                msg = msg.decode('utf-8')
+                msg = client.recv(self.max_size).decode('utf-8')
             except OSError:
                 break
-            
-            print(msg)
-            msg_queue.put(msg)
-            msg = 'return'
-            msg = msg.encode('utf-8')
-            client.sendall(msg)
-            break
-
+                
+                print(msg)
+                       
         client.close()
+    
+    def input_msg(self):
+        while True:
+            msg = input('command wait:')
+            #全てのクライアントに向けて発信
+            for c in clients:
+                c[0].sendall(msg.encode('utf-8'), c[1])
 
     def s_start(self):
         print('--Server Start--')
         while True:
             client, (c_addr, c_port) = self.server.accept()
+            clients.append((client, c_addr))
             print('New Client: {0} : {1}'.format(c_addr, c_port))
+            #接続してきたクライアントを処理するスレッドを用意する
             c_thread = threading.Thread(target = s_class.c_handler,
                 args = (client, c_addr, c_port))
+            
+            #標準入力(コマンド)待ち
+            self.input_msg()
+            #親スレッドが死んだら子も道連れにする
             c_thread.daemon = True
+            #スレッドを起動する
             c_thread.start()
             
             
