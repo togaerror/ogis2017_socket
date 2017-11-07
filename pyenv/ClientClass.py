@@ -23,11 +23,15 @@ class ClientClass:
                 self.input_msg()
             finally:
                 self.client.close()
+
         elif mode == '1': #画像
             print('screen mode')
+            self.handler_thread = threading.Thread(target = self.screen_handler, args = (), daemon = True)
+            self.handler_thread.start()
 
         elif mode == '2': #RaspberryPi
             print('RaspberryPi mode')
+
         else:
             print('no mode')
             self.client.close()
@@ -42,6 +46,11 @@ class ClientClass:
                 break
             else:
                 self.client.send(msg.encode('utf-8'))
+    
+    def screen_handler(self):
+        while True:
+            msg = self.client.recv(self.max_size)
+            msg = msg.decode('utf-8')
 
     def UI_handler(self):
         while True:
