@@ -4,6 +4,7 @@ import threading
 import queue
 import json
 import re
+from time import sleep
 win_keep = ''
 
 class ClientClass:
@@ -60,7 +61,7 @@ class ClientClass:
             elif mode == '2':
                 print('mode 2: send')
                 msg = mode + ':' + msg
-                self.client.send(msg.encode('utf-8'))
+                self.client.sendall(msg.encode('utf-8'))
     
     def recv_msgs(self):
         msg = self.client.recv(self.max_size)
@@ -77,15 +78,14 @@ class ClientClass:
                     #投票の場合
                     if re.search('start', msg):
                         print('--start--')
-                        msg = self.recv_msgs() #config check
-                        if re.search('ok', msg):
-                            #投票を行う設定の受信
-                            print(msg)
-                            print('wait win_msg and msg')
-                            win_keep = self.recv_msgs()
-                            msg = self.recv_msgs()
-                            print(win_keep)
-                            print(msg)
+                        #投票を行う設定の受信 
+                        print('wait win_msg and msg')
+                        win_keep = self.recv_msgs()
+                        msg = self.recv_msgs()
+                        print(win_keep)
+                        print(msg)
+                        self.client.sendall('2:left'.encode('utf-8'))
+                        #結果を返す処理をここ以外に書く
                         print('--end--')
                     else:
                         print('not start')
@@ -102,6 +102,8 @@ class ClientClass:
             if msg != None:
                 if re.match(mode, msg):
                     print('match')
+                    if re.screen('reset', msg):
+                        print('reset')
                 else:
                     print('no match')
             else:
@@ -116,6 +118,7 @@ class ClientClass:
                     print('match')
                 else:
                     print('no match')
+                    print(msg)
             else:
                 self.client.close()
 
