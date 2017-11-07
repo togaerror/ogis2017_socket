@@ -11,9 +11,8 @@ test = ''' {
 } '''
  #Queue
 msg_queue = queue.Queue() #待機している設定
-win_keep = queue.Queue() #勝ち残り設定
 queueLock = threading.Lock()
-
+win_keep = 'empty'
 #Client Stack
 clients = []
 
@@ -36,16 +35,23 @@ class ServerClass:
             handle_thread = threading.Thread(target = self.server_handler, args = (self.con, self.addr), daemon = True)
             handle_thread.start()
     
+    def send_clients(self, mode, msg):
+        for c in clients:
+            c[0].sendto(mode.encode('utf-8'), c[1])
+            c[0].sendto(msg.encode('utf-8'), c[1])
+    
+    def recv_msgs(self, con):
+        mode = con.recv(self.max_size)
+        mode = mode.decode('utf-8')
+        msg = con.recv(self.max_size)
+        msg = msg.decode('utf-8')
+        return mode, msg
+
     def server_handler(self, con, addr):
         #clientからデータを受信する
         while True:
             try:
-                mode = con.recv(self.max_size)
-                mode = mode.decode('utf-8')
-                msg = con.recv(self.max_size)
-                msg = msg.decode('utf-8')
-                print('from:{}'.format(con))
-                print('{0} {1}'.format(mode, msg))
+                mode, msg = self.recv_msgs(con)
             except ConnectionResetError:
                 #コネクションが切れたとき
                 print('ConnectionResetError!')
@@ -57,18 +63,8 @@ class ServerClass:
             if not msg:
                 pass
             else:
-                if mode == '0': #msgが設定だったらスタック 
-                    queueLock.acquire()
-                    msg_queue.put(msg)
-                    queueLock.release()
-                    mode = '0'
-                    for c in clients:
-                        c[0].sendto(mode.encode('utf-8'), c[1])
-                        c[0].sendto(msg.encode('utf-8'), c[1])
-                    
-            
+                
+                
 
-               
-            
 if __name__ == '__main__':
     s_class = ServerClass()
