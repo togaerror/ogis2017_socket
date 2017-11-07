@@ -13,6 +13,9 @@ test = ''' {
 msg_queue = queue.Queue() #待機している設定
 queueLock = threading.Lock()
 win_keep = 'empty'
+keep = 'empty'
+win_list = []
+
 #Client Stack
 clients = []
 
@@ -48,9 +51,13 @@ class ServerClass:
 
     def server_handler(self, con, addr):
         global win_keep
+        global win_list
+        global keep
+        win_list = []
         #clientからデータを受信する
         while True:
             try:
+                flag = False
                 msg = ''
                 msg = self.recv_msgs(con)
             except ConnectionResetError:
@@ -65,34 +72,55 @@ class ServerClass:
                 pass
             else: #メッセージを受け取った処理
                 if re.match('0', msg) and re.search('start', msg):
-                    self.send_clients('2', 'start')
-                    print('--start--')
                     #configの数を調べる
                     if win_keep == 'empty' and msg_queue.qsize() < 2 or msg_queue.qsize() == 0:
                         self.send_clients('2', 'empty')
                         #終了
                     else:
-                        self.send_clients('2', 'ok')
+                        queueLock.acquire()
+                        print('--start--')
+                        self.send_clients('2', 'start')
                         sleep(1)
                         if win_keep == 'empty':
                             win_keep = msg_queue.get()
                         msg = msg_queue.get()
+                        queueLock.release()
+                        keep = msg
                         #投票を行う設定の送信
-                        print('send 1')
+                        #win_keep 左, msg 右
                         self.send_clients('2', win_keep)
                         sleep(1)
-                        print('send 2')
                         self.send_clients('2', msg)
-                    print('--end--')
+                        print('--end--')
                 elif re.match('0', msg) and re.search('reset', msg):
                     print('screen reset')
                     self.send_clients('1', 'reset')
+                elif re.match('0', msg) and re.search('result', msg): #結果
+                    win_list.sort()
+                    num = len(win_list)
+                    print(win_list[num // 2])
+                    if re.search('left', win_list[num // 2]):
+                        print('win left')
+                    else:
+                        print('win right')
+                        win_list = keep
+                    print('--end--')
                 elif re.match('0', msg):
                     print('--stack--')
                     queueLock.acquire()
                     msg_queue.put(msg)
                     queueLock.release()
                     self.send_clients('0', 'stack')
+                elif re.match('2', msg):
+                    print('Raspberry Pi')
+                    queueLock.acquire()
+                    if re.search('left', msg) or re.search('right', msg):
+                        win_list.append(msg)
+                    queueLock.release()
+        
+                if flag == True:
+                    print('Ture')
+                    
                     
 
 
