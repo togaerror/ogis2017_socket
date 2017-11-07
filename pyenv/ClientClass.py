@@ -31,7 +31,8 @@ class ClientClass:
 
         elif mode == '2': #RaspberryPi
             print('RaspberryPi mode')
-
+            self.handler_thread = threading.Thread(target = self.raspberry_handler, args = (), daemon = True)
+            self.handler_thread.start()
         else:
             print('no mode')
             self.client.close()
@@ -46,7 +47,9 @@ class ClientClass:
                 break
             else:
                 self.client.send(msg.encode('utf-8'))
-    
+    def raspberry_handler(self):
+        while True:
+            
     def screen_handler(self):
         while True:
             msg = self.client.recv(self.max_size)
@@ -58,26 +61,6 @@ class ClientClass:
             msg = self.client.recv(self.max_size)
             msg = msg.decode('utf-8')
             print('msg:{}'.format(msg))
-
-    def client_handler(self):
-        while True:
-            msg = self.client.recv(self.max_size)
-            msg = msg.decode('utf-8')
-            if msg == 'start': #投票スタートを受け取った場合
-                print('msg:{}'.format(msg))
-                #設定を待つ
-                win_msg = self.client.recv(self.max_size)
-                msg = self.client.recv(self.max_size)
-                win_msg.decode('utf-8')
-                msg.decode('utf-8')
-                print('win_msg:{}'.format(win_msg))
-                print('msg:{}'.format(msg))
-                win_keep.put(win_msg)
-                
-            elif msg != None:
-                print('msg:{}'.format(msg))
-            else:
-                self.client.close()
 
 if __name__ == '__main__':
     mode = input('mode:') #0, 1, 2
