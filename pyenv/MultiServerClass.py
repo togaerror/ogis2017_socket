@@ -62,9 +62,16 @@ class ServerClass:
 
             if not msg:
                 pass
-            else:
-                
-                
+            else: #メッセージを受け取った処理
+                print('{0}:{1}'.format(mode, msg))
+                if mode == '0' and msg == 'start':
+                    print('--start--')
+                    self.send_clients(mode, msg)
+                elif mode == '0' and msg != 'start':
+                    print('--stack--')
+                    queueLock.acquire()
+                    msg_queue.put(msg)
+                    queueLock.release()
 
 if __name__ == '__main__':
     s_class = ServerClass()
