@@ -4,7 +4,7 @@ import threading
 import queue
 import json
 import re
-
+from time import sleep
 #test json
 test = ''' {
     "test" : "json" 
@@ -36,22 +36,23 @@ class ServerClass:
             handle_thread.start()
     
     def send_clients(self, mode, msg):
+        msg = mode + ':' + msg
+        print('send msg:{}'.format(msg))
         for c in clients:
-            c[0].sendto(mode.encode('utf-8'), c[1])
             c[0].sendto(msg.encode('utf-8'), c[1])
     
     def recv_msgs(self, con):
-        mode = con.recv(self.max_size)
-        mode = mode.decode('utf-8')
         msg = con.recv(self.max_size)
         msg = msg.decode('utf-8')
-        return mode, msg
+        return msg
 
     def server_handler(self, con, addr):
+        global win_keep
         #clientからデータを受信する
         while True:
             try:
-                mode, msg = self.recv_msgs(con)
+                msg = ''
+                msg = self.recv_msgs(con)
             except ConnectionResetError:
                 #コネクションが切れたとき
                 print('ConnectionResetError!')
@@ -63,15 +64,37 @@ class ServerClass:
             if not msg:
                 pass
             else: #メッセージを受け取った処理
-                print('{0}:{1}'.format(mode, msg))
-                if mode == '0' and msg == 'start':
+                if re.match('0', msg) and re.search('start', msg):
+                    self.send_clients('2', 'start')
                     print('--start--')
-                    self.send_clients(mode, msg)
-                elif mode == '0' and msg != 'start':
+                    #configの数を調べる
+                    if win_keep == 'empty' and msg_queue.qsize() < 2 or msg_queue.qsize() == 0:
+                        self.send_clients('2', 'empty')
+                        #終了
+                    else:
+                        self.send_clients('2', 'ok')
+                        sleep(1)
+                        if win_keep == 'empty':
+                            win_keep = msg_queue.get()
+                        msg = msg_queue.get()
+                        #投票を行う設定の送信
+                        print('send 1')
+                        self.send_clients('2', win_keep)
+                        sleep(1)
+                        print('send 2')
+                        self.send_clients('2', msg)
+                    print('--end--')
+                elif re.match('0', msg) and re.search('reset', msg):
+                    print('screen reset')
+                    self.send_clients('1', 'reset')
+                elif re.match('0', msg):
                     print('--stack--')
                     queueLock.acquire()
                     msg_queue.put(msg)
                     queueLock.release()
+                    self.send_clients('0', 'stack')
+                    
+
 
 if __name__ == '__main__':
     s_class = ServerClass()
