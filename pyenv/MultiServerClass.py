@@ -9,7 +9,8 @@ test = ''' {
     "test" : "json" 
 } '''
  #Queue
-msg_queue = queue.Queue()
+msg_queue = queue.Queue() #待機している設定
+win_keep = queue.Queue() #勝ち残り設定
 queueLock = threading.Lock()
 
 #Client Stack
@@ -52,14 +53,26 @@ class ServerClass:
                 pass
             else:
                 if msg == 'start':
+                    print('msg:{}'.format(msg))
+                    #投票開始
                     #全clientに設定を送る
+                    win_msg = 'empty'
                     queueLock.acquire()
-                    if msg_queue.empty() != True:
-                        msg = msg_queue.get()
+                    if win_keep.empty() != True:
+                        if msg_queue.empty() != True:
+                            msg = msg_queue.get()
+                        else:
+                            msg = 'Message empty!'
                     else:
-                        msg = 'Message empty!'
+                        if msg_queue.qsize() < 2:
+                            msg = '設定数が足りません'
+                        else:
+                            win_msg = msg_queue.get()
+                            msg = msg_queue.get()
                     queueLock.release()
+                    print('--send all client--')
                     for c in clients:
+                        c[0].sendto(win_msg.encode('utf-8'), c[1])
                         c[0].sendto(msg.encode('utf-8'), c[1])
                 else:
                     #メッセージをスタックする
