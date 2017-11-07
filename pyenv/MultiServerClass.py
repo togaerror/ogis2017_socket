@@ -39,6 +39,7 @@ class ServerClass:
         while True:
             try:
                 msg = con.recv(self.max_size)
+                msg = msg.decode('utf-8')
             except ConnectionResetError:
                 #コネクションが切れたとき
                 print('ConnectionResetError!')
@@ -46,11 +47,22 @@ class ServerClass:
                 con.close()
                 clients.remove(con, addr)
                 break
+
+            if not msg:
+                pass
             else:
-                if not msg:
-                    pass
+                if msg == 'start':
+                    #全clientに設定を送る
+                    queueLock.acquire()
+                    if msg_queue.empty() != True:
+                        msg = msg_queue.get()
+                    else:
+                        msg = 'Message empty!'
+                    queueLock.release()
+                    for c in clients:
+                        c[0].sendto(msg.encode('utf-8'), c[1])
                 else:
-                    msg = msg.decode('utf-8')
+                    #メッセージをスタックする
                     queueLock.acquire()
                     msg_queue.put(msg)
                     queueLock.release()
