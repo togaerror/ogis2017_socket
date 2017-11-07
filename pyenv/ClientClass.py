@@ -4,7 +4,6 @@ import threading
 import queue
 import json
 import re
-
 win_keep = ''
 
 class ClientClass:
@@ -55,44 +54,68 @@ class ClientClass:
                 print('close')
                 break
             elif mode == '0':
-                self.client.send(mode.encode('utf-8')) 
-                self.client.send(msg.encode('utf-8'))
+                print('mode 0: send')
+                msg = mode + ':' + msg
+                self.client.sendall(msg.encode('utf-8'))
             elif mode == '2':
-                self.client.send(mode.encode('utf-8'))
+                print('mode 2: send')
+                msg = mode + ':' + msg
                 self.client.send(msg.encode('utf-8'))
     
     def recv_msgs(self):
-        msg_mode = self.client.recv(self.max_size)
-        msg_mode = msg_mode.decode('utf-8') 
         msg = self.client.recv(self.max_size)
         msg = msg.decode('utf-8')
-        return msg_mode, msg
+        return msg
 
-    def raspberry_handler(self, mode):
+    def raspberry_handler(self, mode): #2
+        global win_keep
         while True:
-            msg_mode, msg = self.recv_msgs()
+            msg = self.recv_msgs()
             if msg != None:
-                print('msg:{0} {1}'.format(msg_mode, msg))
-
+                if re.match(mode, msg): #先頭が2
+                    print('match')
+                    #投票の場合
+                    if re.search('start', msg):
+                        print('--start--')
+                        msg = self.recv_msgs() #config check
+                        if re.search('ok', msg):
+                            #投票を行う設定の受信
+                            print(msg)
+                            print('wait win_msg and msg')
+                            win_keep = self.recv_msgs()
+                            msg = self.recv_msgs()
+                            print(win_keep)
+                            print(msg)
+                        print('--end--')
+                    else:
+                        print('not start')
+                else:
+                    print('no match')
             else:
                 self.client.close()
 
-    def screen_handler(self, mode):
+
+
+    def screen_handler(self, mode): #1
         while True:
-            msg_mode, msg = self.recv_msgs()
+            msg = self.recv_msgs()
             if msg != None:
-                if msg_mode == mode:
-                    print('msg:{}'.format(msg))
+                if re.match(mode, msg):
+                    print('match')
+                else:
+                    print('no match')
             else:
                 self.client.close()
 
-    def UI_handler(self, mode):
+    def UI_handler(self, mode): #0
         while True:
             #投票結果の受け取り
-            msg_mode, msg = self.recv_msgs()
+            msg = self.recv_msgs()
             if msg != None:    
-                if mode == msg_mode:
-                    print('msg:{}'.format(msg))                 
+                if re.match(mode, msg):
+                    print('match')
+                else:
+                    print('no match')
             else:
                 self.client.close()
 
