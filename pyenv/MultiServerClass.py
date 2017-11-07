@@ -3,6 +3,7 @@ import socket
 import threading
 import queue
 import json
+import re
 
 #test json
 test = ''' {
@@ -34,13 +35,17 @@ class ServerClass:
             #接続されたクライアント毎にスレッドを立てる
             handle_thread = threading.Thread(target = self.server_handler, args = (self.con, self.addr), daemon = True)
             handle_thread.start()
-
+    
     def server_handler(self, con, addr):
         #clientからデータを受信する
         while True:
             try:
+                mode = con.recv(self.max_size)
+                mode = mode.decode('utf-8')
                 msg = con.recv(self.max_size)
                 msg = msg.decode('utf-8')
+                print('from:{}'.format(con))
+                print('{0} {1}'.format(mode, msg))
             except ConnectionResetError:
                 #コネクションが切れたとき
                 print('ConnectionResetError!')
@@ -52,36 +57,13 @@ class ServerClass:
             if not msg:
                 pass
             else:
-                if msg == 'start':
-                    print('msg:{}'.format(msg))
-                    #投票開始
-                    #全clientに設定を送る
-                    win_msg = 'empty'
-                    queueLock.acquire()
-                    if win_keep.empty() != True:
-                        if msg_queue.empty() != True:
-                            msg = msg_queue.get()
-                        else:
-                            msg = 'Message empty!'
-                    else:
-                        if msg_queue.qsize() < 2:
-                            msg = '設定数が足りません'
-                        else:
-                            win_msg = msg_queue.get()
-                            msg = msg_queue.get()
-                    queueLock.release()
-                    print('--send all client--')
-                    for c in clients:
-                        c[0].sendto(win_msg.encode('utf-8'), c[1])
-                        c[0].sendto(msg.encode('utf-8'), c[1])
-                else:
-                    #メッセージをスタックする
+                if mode == '0': #msgが設定だったらスタック 
                     queueLock.acquire()
                     msg_queue.put(msg)
                     queueLock.release()
-                    print('msg:{}'.format(msg))
-                    msg = 'return'
+                    mode = '0'
                     for c in clients:
+                        c[0].sendto(mode.encode('utf-8'), c[1])
                         c[0].sendto(msg.encode('utf-8'), c[1])
                     
             
