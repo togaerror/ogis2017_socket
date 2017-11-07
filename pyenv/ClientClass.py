@@ -23,7 +23,7 @@ class ClientClass:
     def input_msg(self):
         #メッセージの入力とサーバへの送信
         while True:
-            msg = input('>>>')
+            msg = input()
             if msg == 'exit':
                 self.client.close()
                 print('close')
@@ -36,7 +36,6 @@ class ClientClass:
             msg = self.client.recv(self.max_size)
             if msg != None:
                 print('msg:{}'.format(msg.decode('utf-8')))
-                print('>>>')
             else:
                 self.client.close()
 
