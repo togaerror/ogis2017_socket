@@ -25,43 +25,43 @@ class ServerClass:
         self.server.bind((self.s_host, self.s_port))
         self.server.listen(128)
 
-    #ここでClientとのやりとりを書いていく
-    def c_handler(self, client, c_addr, c_port):
-        while True:
-            try:
-                msg = client.recv(self.max_size).decode('utf-8')
-            except OSError:
-                break
-                
-                print(msg)
-                       
-        client.close()
-    
-    def input_msg(self):
-        while True:
-            msg = input('command wait:')
-            #全てのクライアントに向けて発信
-            for c in clients:
-                c[0].sendall(msg.encode('utf-8'), c[1])
-
-    def s_start(self):
         print('--Server Start--')
         while True:
-            client, (c_addr, c_port) = self.server.accept()
-            clients.append((client, c_addr))
-            print('New Client: {0} : {1}'.format(c_addr, c_port))
-            #接続してきたクライアントを処理するスレッドを用意する
-            c_thread = threading.Thread(target = s_class.c_handler,
-                args = (client, c_addr, c_port))
+            self.con, self.addr = self.server.accept()
+            print('connect:{}'.format(self.addr))
+            clients.append((self.con, self.addr))
+            #接続されたクライアント毎にスレッドを立てる
+            handle_thread = threading.Thread(target = self.server_handler, args = (self.con, self.addr), daemon = True)
+            handle_thread.start()
+
+    def server_handler(self, con, addr):
+        #clientからデータを受信する
+        while True:
+            try:
+                msg = con.recv(self.max_size)
+            except ConnectionResetError:
+                #コネクションが切れたとき
+                print('ConnectionResetError!')
+                print('{}'.format(addr))
+                con.close()
+                clients.remove(con, addr)
+                break
+            else:
+                if not msg:
+                    pass
+                else:
+                    msg = msg.decode('utf-8')
+                    queueLock.acquire()
+                    msg_queue.put(msg)
+                    queueLock.release()
+                    print('msg:{}'.format(msg))
+                    msg = 'return'
+                    for c in clients:
+                        c[0].sendto(msg.encode('utf-8'), c[1])
+                    
             
-            #標準入力(コマンド)待ち
-            self.input_msg()
-            #親スレッドが死んだら子も道連れにする
-            c_thread.daemon = True
-            #スレッドを起動する
-            c_thread.start()
-            
+
+               
             
 if __name__ == '__main__':
     s_class = ServerClass()
-    s_class.s_start()
