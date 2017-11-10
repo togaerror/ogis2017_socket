@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>Democrasea</title>
+    <link rel="shortcut icon" href="{{static_url('img/favicon.ico')}}">
+    
+    <link rel="stylesheet" href="{{static_url('jqueryui/jquery-ui.css')}}">
+    <link rel="stylesheet" href="{{static_url('jqueryui/jquery-ui.theme.css')}}'">
+    <link rel="stylesheet" href="{{static_url('jqueryui/jquery-ui.structure.css')}}'">
+    <link rel="stylesheet" href="{{static_url('css/style.css')}}'">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+</head>
+<body>
+    <div class="appHeader">
+        <div id="titlepic"><img src="{{static_url('img/democraseaHeaderIcon.svg')}}"></div>
+    </div>
+    <canvas id="animationCanvas" width="547px" height="647px"></canvas>
+    <div class="mainSection">
+        <br>
+        <img src="{{static_url('img/democraseaIcon.svg')}}" id="topImage"><br>
+        <div class="btnNormal">
+            <a class="innnerBtn" id="button1">設定</a>
+        </div>
+        <div class="btnNormal">
+            <a class="innnerBtn" id="button2">結果</a>
+        </div>
+        <div class="btnNormal">
+            <a class="innnerBtn" id="button3">投票開始</a>
+        </div>
+    </div>
+ 
+    <!-- 設定ダイアログ内部 -->
+    <div id="setteidialog" title="設定">
+        <fieldset id="esaset">
+            <legend>餌</legend>
+            <label for="esa1">餌1</label>
+            <input type="radio" name="esaradio" id="esa1" value="1" checked>
+            <label for="esa2">餌2</label>
+            <input type="radio" name="esaradio" id="esa2" value="2">
+            
+        </fieldset>
+        <fieldset id="suiryuset">
+            <legend>水流</legend>
+            <label for="yowai">弱い</label>
+            <input type="radio" name="suiryuradio" id="yowai" value="0" checked>
+            <label for="tuyoi">強い</label>
+            <input type="radio" name="suiryuradio" id="tuyoi" value="1">            
+        </fieldset>
+        <fieldset id="haikeiset">
+            <legend>背景</legend>
+            <!--
+            <input type="color" id="haikeicolor" value="#000000">
+            <div id="haikeicolorcode">#000000</div>
+            -->
+            <button type="button" id="previmg">←</button> 
+            <div id="img1" value="1"><img src="{{static_url('img/backgroundImg_01.jpg')}}"></div>
+            <div id="img2" value="2"><img src="{{static_url('img/backgroundImg_02.jpg')}}"></div>
+            <div id="img3" value="3"><img src="{{static_url('img/backgroundImg_03.jpg')}}"></div>
+            <button type="button" id="nextimg">→</button>
+            
+            <div id="picslide"></div>
+
+     
+        </fieldset>
+        <fieldset id="ledset">
+            <legend>LEDの色</legend>
+            
+            <input type="color" id="ledcolor" value="#000000">
+            <div id="ledcolorcode">#000000</div>
+            
+        </fieldset>
+        <div id="bar">
+            <div id="settingpage">項目1/4</div>
+        </div>    
+    </div>
+    <!-- 設定ダイアログ内部ここまで -->
+    
+    <div id="kakunindialog" title="確認">
+        <div id="kakunin">以下の設定でよろしいですか？</div>
+        <div id="nakami">ここは書き換わります</div>
+    </div>
+    
+    <!-- 結果ダイアログ内部 -->
+    <div id="kekkadialog" title="結果">
+    <div id="accordion">
+        <div id="date">最終更新日:なし</div>
+        <h3>餌</h3>
+        <div id="esa">まだ決定していません</div>
+        <h3>水流</h3>
+        <div id="suiryu">まだ決定していません</div>
+        <h3>背景</h3>
+        <div id="haikei">まだ決定していません</div>
+        <div class="kekkapic" id="kekkaimg1" value="1"><img src="{{static_url('img/backgroundImg_01.jpg')}}"></div>
+        <div class="kekkapic" id="kekkaimg2" value="2"><img src="{{static_url('img/backgroundImg_02.jpg')}}"></div>
+        <div class="kekkapic" id="kekkaimg3" value="3"><img src="{{static_url('img/backgroundImg_03.jpg')}}"></div>
+        <h3>LEDの色</h3>
+        <div id="led">まだ決定していません</div>
+    </div>
+    </div>
+    <!-- 結果ダイアログ内部ここまで -->
+    
+    <p id="json" hidden="hidden">log</p>
+    
+   
+    <script src="{{static_url('jqueryui/jquery.js')}}"></script>
+    <script src="{{static_url('jqueryui/jquery-ui.js')}}"></script>
+    <script src="{{static_url('js/websocket.js')}}"></script>
+    <script src="{{static_url('js/main.js')}}"></script>
+    <script src="{{static_url('js/kekka.js')}}" charset="utf-8"></script> 
+    <script src="{{static_url('js/settei.js')}}"></script>
+    <script src="{{static_url('js/animation.js')}}"></script>
+    
+    
+</body>
+</html>

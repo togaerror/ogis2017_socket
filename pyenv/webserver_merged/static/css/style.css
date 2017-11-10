@@ -1,0 +1,152 @@
+html,body{
+    width: 100%;
+    height: 100%;
+    background-color: rgb(204, 223, 240);
+    color: black;
+    margin: 0 0 0 0;
+}
+
+h1{
+    font-size: 30px;
+    
+}
+h2{
+    font-size: 25px;
+}
+p{
+    font-size: 15px;
+}
+
+.appHeader{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 10%;
+    width: 100%;
+    padding-top: 1%;
+    padding-bottom: 2.5%;
+    background: linear-gradient(rgb(215, 215, 215), rgb(250, 250, 250));
+    z-index: 10;
+}
+#titlepic{
+    
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+}
+#titlepic img{
+    width: 100%;
+   
+}
+
+.title{
+    width:100%;
+    font-size: 1em;
+    text-align: center;
+}
+
+
+.normalText{
+    font-size: 1em;
+}
+
+.mainSection{
+    position: absolute;
+    top: 20%;
+    margin-left: 5%;
+    margin-right: 5%;
+    width: 90%;
+    height: 85%;
+    text-align: center;
+}
+
+.btnNormal{
+    position: relative;
+    width: 100%;
+    display: block;
+    margin-top: 0.5em;
+}
+
+.innnerBtn{
+    text-decoration: none;
+    display: block;
+    border: black;
+    border-radius: 5px;
+    width: 100%;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    background: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
+    text-align: center;
+}
+
+#animationCanvas{
+    position: absolute;
+    top:7%;
+    left:0;
+}
+
+#topImage{
+    background-color: rgba(255,255,255,0);
+    width: 50%;
+    margin-left:25%;
+    margin-right: 25%;
+    top: 20%
+    display: block;
+    text-align: center;
+}
+fieldset{
+    height: 75%;
+    display: block;
+    border-radius: 5px;
+}
+#settingpage{
+    position: absolute;
+    text-align: center;
+    margin-top: 2px;
+    width: 88%;
+    display: block;
+}
+
+#bar{
+    margin-top: 3px;
+}
+
+#ledcolor{
+    padding-left: 5%;
+    padding-right: 5%;
+    width: 90%;
+    height:50px;
+}
+
+#haikeicolor{
+    padding-left: 5%;
+    padding-right: 5%;
+    width: 90%;
+    height:50px;
+}
+#haikeiset img{
+    width:45%;
+    position: absolute;
+    margin-left: 15%;
+    top: 20%;
+    z-index: 1;
+}
+#previmg{
+    position: absolute;
+    font-size: .8em !important;
+    left: 10%;
+    top:65%;
+    z-index: 2;
+}
+#nextimg{
+    position: absolute;
+    font-size: .8em !important;
+    left: 75%;
+    top:65%;
+    z-index: 2;
+}
+.kekkapic img{
+    position: relative;
+    width: 60%
+}

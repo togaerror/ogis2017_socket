@@ -1,0 +1,17 @@
+<html>
+<meta charset="utf-8">
+<head>
+<link rel="stylesheet" href="{{static_url('css/screen_style.css')}}">
+</head> 
+<body>
+<div id="initScreen"></div>
+<img id="subBackgroundImageA" class="backgroundImages">
+<img id="subBackgroundImageB" class="backgroundImages">
+<!--index.html内でのパスはstaticURL-->
+<img id="mainBackgroundImage" class="backgroundImages" src="{{static_url('img/backgroundImg_01.jpg')}}">
+
+</body>
+<script src="{{ static_url('jqueryui/jquery.js')}}"></script>
+<script src="{{static_url('js/screen_websocket.js')}}"></script>
+<script src="{{static_url('js/screen_screen.js')}}"></script>
+</html>
