@@ -41,6 +41,12 @@ class ServerClass:
     def recv_msgs(self, con):
         msg = con.recv(self.max_size)
         msg = msg.decode('utf-8')
+        if re.match('0:', msg):
+            msg = msg.rsplit('0:', msg)
+        elif re.match('1:', msg):
+            msg = msg.rsplit('1:', msg)  
+        elif re.match('2:', msg):
+            msg = msg.rsplit('2:', msg)
         return msg
 
     def server_handler(self, con, addr):
@@ -60,7 +66,7 @@ class ServerClass:
                 pass
             else: #msgを受け取った
                 print(msg)
-                self.send_clients('0', msg) 
+                self.send_clients('2', msg)
 
 if __name__ == '__main__':
     s_class = ServerClass()
