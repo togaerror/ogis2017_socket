@@ -74,9 +74,10 @@ $("#kakunindialog").dialog({
                     var rgb = [parseInt(led.substring(1,3), 16),parseInt(led.substring(3,5), 16),parseInt(led.substring(5,7), 16)]
                     
                     obj = '{"name":"set","date":"' + log + '", "setting":{"esa":' + esaVal +', "suiryu":' + suiryuInt + ', "haikei":' + haikeinum + ', "LED":[' + rgb + ']}}';
-                    //console.log(obj);
+                    console.log(obj);
                     //webserverにobjを送る
-                    ws.send(obj)
+                    console.log(ws);
+                    ws.send(obj);
 
                     $("#json").html(obj);
                     $(this).dialog("close");
