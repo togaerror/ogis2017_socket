@@ -9,19 +9,21 @@ from ClientClass import *
 
 cl = []
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
+    def check_origin(self, origin):
+        return True
+
     def open(self):
         #print("self_info: " + self)
         if self not in cl:
             cl.append(self)
             print("open")
-
-        self.c = ClientClass()
-
+        
+        self.c = ClientClass('0')
+        print(self.c)
         #クライアント用のsocketクライアントをここで作る
         self.cl_th1 = threading.Thread(name="cl_th1", target=self.cl_threadTest)
-        self.cl_th1.setDaemon(True)  # これを指定しない場合"ctrl+C"でスレッドが終了しないので注意
+        self.cl_th1.setDaemon(True)  #これを指定しない場合"ctrl+C"でスレッドが終了しないので注意
         self.cl_th1.start()
-
 
     def on_message(self, message):
         print(message)
@@ -35,13 +37,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
     #受け取り口
     def cl_threadTest(self):
-        self.sheepCounter = 0
-        '''
-        while(True):
-            time.sleep(3)
-            print(str(self.sheepCounter) + "sheep...")
-            self.sheepCounter += 1
-        '''
+        print('受け取り口')
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
