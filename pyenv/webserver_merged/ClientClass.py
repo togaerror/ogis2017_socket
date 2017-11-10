@@ -5,6 +5,7 @@ import queue
 import json
 import re
 from time import sleep
+import vote_sample
 
 class ClientClass:
     def __init__(self, mode = '0'):
@@ -58,9 +59,12 @@ class ClientClass:
         print('raspberry mode')
         while True:
             msg = self.recv_msgs()
-
             if msg != None:
                 print(msg)
+                if re.search('vote', msg):
+                    result = vote_sample.Vote()
+                    print(result)
+                    
 
     def input_msg(self, mode):
         #メッセージの入力とサーバへの送信
