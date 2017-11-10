@@ -19,34 +19,32 @@ class ClientClass:
         if mode == '0': #UI
             self.handler_thread = threading.Thread(target = self.UI_handler, args = (), daemon = True)
             self.handler_thread.start()
-            try:
-                self.input_msg('0')
-            finally:
-                self.client.close()
         elif mode == '1': #画像
             self.handler_thread = threading.Thread(target = self.screen_handler, args = (), daemon = True)
             self.handler_thread.start()
-            try:
-                self.input_msg('1')
-            finally:
-                self.client.close()
         elif mode == '2': #RaspberryPi
             self.handler_thread = threading.Thread(target = self.raspberry_handler, args = (), daemon = True)
             self.handler_thread.start()
-            try:
-                self.input_msg('2')
-            finally:
-                self.client.close()
         else:
             print('no mode')
             self.client.close()
     
     def UI_handler(self): #0
         print('UI mode')
-        while True:    
+        while True:
             msg = self.recv_msgs()
+            print(msg)
+            if msg != None:
+                print(':'.format(msg))
+            else:
+                self.client.close()
+            
             if msg != None:
                 print(msg)
+                if re.match('0:', msg):
+                    msg = msg.rstrip('0:')
+                    print(msg)
+
     
     def screen_handler(self): #1
         print('screen mode')
@@ -54,6 +52,9 @@ class ClientClass:
             msg = self.recv_msgs()
             if msg != None:
                 print(msg)
+                if re.match('1:', msg):
+                    msg = msg.lstrip('1:')
+                    print(msg)
     
     def raspberry_handler(self): #2
         print('raspberry mode')
@@ -61,11 +62,14 @@ class ClientClass:
             msg = self.recv_msgs()
             if msg != None:
                 print(msg)
-                if re.search('vote', msg):
-                    result = vote_sample.Vote()
-                    print(result)
+                if re.match('2:', msg):
+                    msg = msg.lstrip('2:')
+                    print(msg)
+                    if re.search('vote', msg):
+                        result = vote_sample.Vote()
+                        print(result)
+                        self.client.sendall(result.encode('utf-8'))
                     
-
     def input_msg(self, mode):
         #メッセージの入力とサーバへの送信
         while True:
