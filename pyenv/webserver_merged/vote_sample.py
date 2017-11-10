@@ -130,9 +130,9 @@ def Vote():
         result = "right"
 
     print(result)
-
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+    return result
 
 if __name__ == "__main__":
     Vote()
