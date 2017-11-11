@@ -19,7 +19,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             print("open")
         
         self.c = ClientClass('0')
-        print(self.c)
         #クライアント用のsocketクライアントをここで作る
         self.cl_th1 = threading.Thread(name="cl_th1", target=self.cl_threadTest)
         self.cl_th1.setDaemon(True)  #これを指定しない場合"ctrl+C"でスレッドが終了しないので注意
@@ -38,6 +37,10 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     #受け取り口
     def cl_threadTest(self):
         print('受け取り口')
+        message = self.c.UI_handler()
+        message = message.lstrip('0:')
+        print('return: {}'.format(message))
+        self.write_message(message) #これでメッセージを送り返す 
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -48,6 +51,9 @@ class ScreenWSHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         self.count = 1
         print("Connection established!! at screen")
+        
+        self.c = ClientClass('1')
+        
         #以下スレッド作成とスタート
         self.th1 = threading.Thread(name="th1", target=self.threadTest)
         #self.th1 = threading.Thread(name="th1", target=self.threadTest, args=(,))
@@ -68,20 +74,14 @@ class ScreenWSHandler(tornado.websocket.WebSocketHandler):
     # スレッド上での処理
     #受け取り口
     def threadTest(self):
+        print('受け取り口')
+        '''
         self.threadCounter = 0
         while(True):
             time.sleep(1)
             print("th1: " + str(self.threadCounter))
             self.threadCounter += 1
-
-    '''
-    def threadTest2(self):
-        self.threadCounter2 = 0
-        while(True):
-            time.sleep(2)
-            print("th2: " + str(self.threadCounter2))
-            self.threadCounter2 += 1
-    '''
+        '''
 class ScreenHandler(tornado.web.RequestHandler):
     def get(self):
         self.render('screen.html')
