@@ -2,15 +2,14 @@
 import socket
 import threading
 import queue
-import json
 import re
-from time import sleep
 
 #Queue
 msg_queue = queue.Queue() #待機している設定
 queueLock = threading.Lock()
 #Client Stack
 clients = []
+win_keep = ''
 
 class ServerClass:
     def __init__(self):
@@ -66,7 +65,17 @@ class ServerClass:
                 pass
             else: #msgを受け取った
                 print(msg)
-                self.send_clients('2', msg)
+                if msg == 'start':
+                   self.send_clients('2', msg)
+                else:
+                    #設定のスタック
+                    queueLock.acquire()
+                    if win_keep = '':
+                        win_keep = msg
+                    else:
+                        msg_queue.put(msg)
+                    queueLock.release()
+
 
 if __name__ == '__main__':
     s_class = ServerClass()
