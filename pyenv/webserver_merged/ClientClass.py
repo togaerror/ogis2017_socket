@@ -2,7 +2,6 @@
 import socket
 import threading
 import queue
-import json
 import re
 from time import sleep
 import vote_sample
@@ -20,11 +19,17 @@ class ClientClass:
             self.handler_thread = threading.Thread(target = self.UI_handler, args = (), daemon = True)
             self.handler_thread.start()
         elif mode == '1': #画像
+            '''
             self.handler_thread = threading.Thread(target = self.screen_handler, args = (), daemon = True)
             self.handler_thread.start()
+            '''
+            self.scleen_handler()
         elif mode == '2': #RaspberryPi
+            '''
             self.handler_thread = threading.Thread(target = self.raspberry_handler, args = (), daemon = True)
             self.handler_thread.start()
+            '''
+            self.raspberry_handler()
         else:
             print('no mode')
             self.client.close()
@@ -33,9 +38,8 @@ class ClientClass:
         print('UI mode')
         while True:
             msg = self.recv_msgs()
-            print(msg)
             if msg != None:
-                print(':'.format(msg))
+                print(msg)
             else:
                 self.client.close()
             
@@ -65,7 +69,14 @@ class ClientClass:
                 if re.match('2:', msg):
                     msg = msg.lstrip('2:')
                     print(msg)
-                    if re.search('vote', msg):
+                    if re.search('@', msg):
+                        conf = msg.split('@')
+                        print('left:  {}'.format(conf[0]))
+                        print('right: {}'.format(conf[1]))
+                        print('--start--')
+                        #ここにRaspberryPIの処理を書いていく
+                        print('--end--')
+                    elif re.search('vote', msg): #投票が終わったらvoteコマンドを出してもらう
                         result = vote_sample.Vote()
                         print(result)
                         self.client.sendall(result.encode('utf-8'))
