@@ -2,6 +2,7 @@
 import socket
 import threading
 import queue
+from time import sleep
 import re
 
 #Queue
@@ -11,6 +12,7 @@ threadLock = threading.Lock()
 clients = []
 result_stack = []
 win_keep = ''
+conf = ''
 
 class ServerClass:
     def __init__(self):
@@ -52,6 +54,7 @@ class ServerClass:
     def server_handler(self, con, addr):
         #clientからデータを受信する
         global win_keep
+        global conf
         while True:
             try:
                 msg = self.recv_msgs(con)
@@ -72,14 +75,25 @@ class ServerClass:
                     if msg_queue.qsize() == 0:
                         print('empty')
                     else:
-                        msg = msg_queue.get()
-                        msg = win_keep + '@' + msg
+                        conf = msg_queue.get()
+                        msg = win_keep + '@' + conf
                         self.send_clients('2', msg)
                     threadLock.release()
-                elif msg == 'left' or msg == 'right':
+                elif msg == 'left' or msg == 'right': #結果の集計
                     threadLock.acquire()
                     result_stack.append(msg)
                     threadLock.release()
+                    sleep(5)
+                    print('結果')
+                    threadLock.acquire()
+                    result_stack.sort()
+                    result = result_stack[len(result_stack) // 2]
+                    print('result: {}'.format(result))
+                    if result == 'right': #新しい設定が勝った場合
+                        win_keep = conf   #勝ち残りの設定の更新
+                    threadLock.release()
+                    self.send_clients('0', win_keep) #結果の送信
+                    result_satck = [] #stackの初期化
                 else:
                     #設定のスタック
                     threadLock.acquire()
@@ -88,7 +102,6 @@ class ServerClass:
                     else:
                         msg_queue.put(msg)
                     threadLock.release()
-
 
 if __name__ == '__main__':
     s_class = ServerClass()
