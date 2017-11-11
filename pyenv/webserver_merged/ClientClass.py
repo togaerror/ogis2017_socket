@@ -1,7 +1,6 @@
 #-*- utf-8 -*-
 import socket
 import threading
-import queue
 import re
 from time import sleep
 import vote_sample
@@ -39,33 +38,33 @@ class ClientClass:
         while True:
             msg = self.recv_msgs()
             if msg != None:
-                print(msg)
+                pass
             else:
                 self.client.close()
             
             if msg != None:
                 print(msg)
                 if re.match('0:', msg):
-                    msg = msg.rstrip('0:')
+                    msg = msg.lstrip('0:')
                     print(msg)
+                    return msg
 
-    
     def screen_handler(self): #1
         print('screen mode')
         while True:
             msg = self.recv_msgs()
             if msg != None:
-                print(msg)
+                pass
                 if re.match('1:', msg):
                     msg = msg.lstrip('1:')
-                    print(msg)
-    
+                    message_listen(msg)
+                    
     def raspberry_handler(self): #2
         print('raspberry mode')
         while True:
             msg = self.recv_msgs()
             if msg != None:
-                print(msg)
+                pass
                 if re.match('2:', msg):
                     msg = msg.lstrip('2:')
                     print(msg)
@@ -76,11 +75,11 @@ class ClientClass:
                         print('--start--')
                         #ここにRaspberryPIの処理を書いていく
                         print('--end--')
-                    elif re.search('vote', msg): #投票が終わったらvoteコマンドを出してもらう
-                        result = vote_sample.Vote()
+                        #RaspberryPIの処理が終わったらServerに結果を返す
+                        result = vote_sample.Vote() 
                         print(result)
                         self.client.sendall(result.encode('utf-8'))
-                    
+
     def input_msg(self, mode):
         #メッセージの入力とサーバへの送信
         while True:
