@@ -6,9 +6,10 @@ import re
 
 #Queue
 msg_queue = queue.Queue() #待機している設定
-queueLock = threading.Lock()
+threadLock = threading.Lock()
 #Client Stack
 clients = []
+result_stack = []
 win_keep = ''
 
 class ServerClass:
@@ -50,6 +51,7 @@ class ServerClass:
 
     def server_handler(self, con, addr):
         #clientからデータを受信する
+        global win_keep
         while True:
             try:
                 msg = self.recv_msgs(con)
@@ -65,16 +67,27 @@ class ServerClass:
                 pass
             else: #msgを受け取った
                 print(msg)
-                if msg == 'start':
-                   self.send_clients('2', msg)
+                if msg == 'start': #投票の開始
+                    threadLock.acquire()
+                    if msg_queue.qsize() == 0:
+                        print('empty')
+                    else:
+                        msg = msg_queue.get()
+                        msg = win_keep + '@' + msg
+                        self.send_clients('2', msg)
+                    threadLock.release()
+                elif msg == 'left' or msg == 'right':
+                    threadLock.acquire()
+                    result_stack.append(msg)
+                    threadLock.release()
                 else:
                     #設定のスタック
-                    queueLock.acquire()
-                    if win_keep = '':
+                    threadLock.acquire()
+                    if win_keep == '':
                         win_keep = msg
                     else:
                         msg_queue.put(msg)
-                    queueLock.release()
+                    threadLock.release()
 
 
 if __name__ == '__main__':
